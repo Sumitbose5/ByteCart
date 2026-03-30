@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../context/UserContext";
 
 const SellerOnboard: React.FC = () => {
   const navigate = useNavigate();
+  const { email } = useUserContext();
   const [form, setForm] = useState({
     razorpayId: "",
     bio: "",
@@ -24,7 +26,7 @@ const SellerOnboard: React.FC = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.accepted) {
@@ -32,8 +34,32 @@ const SellerOnboard: React.FC = () => {
       return;
     }
 
-    console.log(form);
-    alert("Seller Onboarded Successfully \ud83d\ude80");
+    const payload = {
+      ...form,
+      email,
+    };
+    
+    try {
+      const response = await fetch("http://localhost:3000/api/seller/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Seller Onboarded Successfully \ud83d\ude80");
+        navigate("/dashboard");
+      } else {
+        alert("Registration failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error registering seller:", error);
+      alert("An error occurred during registration.");
+    }
   };
 
   return (

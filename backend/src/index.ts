@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { db } from "./config/db";
 import webhookRoutes from "./routes/webhook";
+import sellerRoutes from "./routes/sellerRoutes"
 
 const app = express();
 const PORT: number = 3000;
@@ -32,6 +33,9 @@ app.get('/', (req: Request, res: Response) => {
     version: '1.0.0'
   });
 });
+
+// routes 
+app.use('/api/seller', sellerRoutes);
 
 const startServer = async () => {
   try {

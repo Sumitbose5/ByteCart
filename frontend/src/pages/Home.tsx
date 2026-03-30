@@ -1,15 +1,29 @@
 import React from "react";
 import { Show, SignInButton, SignUpButton, UserButton, useAuth, useClerk } from "@clerk/react";
 import { Link, useNavigate } from "react-router-dom";
-
+import { useUserContext } from "../context/UserContext";
 const Navbar = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
+  const { email } = useUserContext();
 
-  const handleBecomeSeller = () => {
+  const handleBecomeSeller = async () => {
     if (isSignedIn) {
-      navigate("/sellerOnboard");
+      try {
+        const response = await fetch(`http://localhost:3000/api/seller/check-role/${email}`, {
+          method: "GET",
+        });
+        const data = await response.json();
+        if (data.role === "seller") {
+          navigate("/dashboard");
+        } else {
+          navigate("/sellerOnboard");
+        }
+      } catch (error) {
+        console.error("Error checking role:", error);
+        navigate("/sellerOnboard");
+      }
     } else {
       openSignIn({ forceRedirectUrl: "/sellerOnboard" });
     }
@@ -33,13 +47,13 @@ const Navbar = () => {
 
       <div className="flex items-center gap-6">
         <Show when="signed-out">
-          <SignInButton mode="modal">
+          <SignInButton mode="modal" forceRedirectUrl="/dashboard">
              <a className="text-gray-600 hover:text-indigo-500 cursor-pointer">Login</a>
           </SignInButton>
-          <SignUpButton mode="modal">
-            <button className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold cursor-pointer">
-              Sign Up
-            </button>
+          <SignUpButton mode="modal" forceRedirectUrl="/dashboard">
+             <button className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold cursor-pointer">
+               Sign Up
+             </button>
           </SignUpButton>
         </Show>
         <Show when="signed-in">
@@ -55,10 +69,24 @@ const Hero = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
+  const { email } = useUserContext();
 
-  const handleBecomeSeller = () => {
+  const handleBecomeSeller = async () => {
     if (isSignedIn) {
-      navigate("/sellerOnboard");
+      try {
+        const response = await fetch(`http://localhost:3000/api/seller/check-role/${email}`, {
+          method: "GET",
+        });
+        const data = await response.json();
+        if (data.role === "seller") {
+          navigate("/dashboard");
+        } else {
+          navigate("/sellerOnboard");
+        }
+      } catch (error) {
+        console.error("Error checking role:", error);
+        navigate("/sellerOnboard");
+      }
     } else {
       openSignIn({ forceRedirectUrl: "/sellerOnboard" });
     }
